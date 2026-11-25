@@ -1,0 +1,352 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MATRYSA | ماتریسا</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap');
+
+*{box-sizing:border-box}
+
+body{
+ margin:0;
+ font-family:Vazirmatn,sans-serif;
+ color:white;
+ background:linear-gradient(145deg,#100d2c,#20174c,#101c39);
+ min-height:100vh;
+}
+
+header{
+ text-align:center;
+ padding:25px 12px;
+ background:linear-gradient(90deg,#512c91,#164e76);
+ border-bottom:2px solid #a88cff;
+}
+
+.logo{
+ font-size:38px;
+ font-weight:800;
+ letter-spacing:3px;
+ color:#e5c9ff;
+}
+
+header p{color:#d8d2f4}
+
+main{
+ max-width:650px;
+ margin:auto;
+ padding:18px;
+}
+
+.panel{
+ background:#ffffff12;
+ border:1px solid #ffffff30;
+ border-radius:20px;
+ padding:22px;
+ margin:16px 0;
+ box-shadow:0 8px 30px #0004;
+}
+
+h2{color:#dfc1ff}
+
+button{
+ border:0;
+ border-radius:12px;
+ padding:13px 20px;
+ font-family:inherit;
+ font-size:15px;
+ font-weight:700;
+ cursor:pointer;
+ background:linear-gradient(100deg,#a66bfa,#4c9bff);
+ color:white;
+ margin:6px;
+}
+
+button:disabled{
+ opacity:.4;
+ cursor:not-allowed;
+}
+
+button.option{
+ display:block;
+ width:100%;
+ text-align:right;
+ background:#ffffff15;
+ border:1px solid #ffffff35;
+}
+
+button.option:active{background:#6846a5}
+
+.hidden{display:none}
+
+.stat{
+ display:flex;
+ justify-content:space-between;
+ gap:10px;
+ flex-wrap:wrap;
+ color:#d8d2ff;
+ font-size:13px;
+}
+
+.bar{
+ height:9px;
+ background:#ffffff20;
+ border-radius:20px;
+ overflow:hidden;
+ margin:15px 0;
+}
+
+.fill{
+ height:100%;
+ width:0%;
+ background:linear-gradient(90deg,#bd75ff,#55c9ff);
+ transition:.3s;
+}
+
+#message{
+ min-height:35px;
+ color:#aeeacb;
+ font-weight:600;
+}
+
+.world{
+ text-align:center;
+ font-size:55px;
+ padding:15px;
+}
+
+footer{
+ text-align:center;
+ padding:25px;
+ color:#aaa4cc;
+ font-size:12px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+ <div class="logo">MATRYSA</div>
+ <p>THE LOST CITY OF MATHEMATICS</p>
+ <small>شهر گمشده ریاضیات</small>
+</header>
+
+<main>
+
+<section id="home" class="panel">
+ <div class="world">🏰</div>
+ <h2 style="text-align:center">به ماتریسا خوش آمدی!</h2>
+ <p style="text-align:center;line-height:2">
+ شهر ریاضیات در تاریکی فرو رفته است.
+ نه قطعه از قلب دانش گم شده‌اند.
+ تو باید سرزمین‌ها را آزاد کنی و شهر را نجات دهی.
+ </p>
+ <button style="width:100%" onclick="startGame()">
+ شروع ماجراجویی
+ </button>
+</section>
+
+<section id="game" class="panel hidden">
+
+ <div class="stat">
+  <span id="level">مرحله ۱</span>
+  <span id="score">امتیاز: ۰</span>
+ </div>
+
+ <h2>⚡ نیروگاه خاموش</h2>
+
+ <div class="bar">
+  <div class="fill" id="progress"></div>
+ </div>
+
+ <p id="story">
+ دروازه نیروگاه بسته است. برای روشن کردن آن باید
+ رمز ریاضی را پیدا کنی!
+ </p>
+
+ <h3 id="question"></h3>
+
+ <div id="options"></div>
+
+ <p id="message"></p>
+
+ <button id="next" class="hidden" onclick="nextQuestion()">
+ سؤال بعدی
+ </button>
+
+</section>
+
+<section id="finish" class="panel hidden">
+ <div class="world">💎</div>
+ <h2 style="text-align:center">نیروگاه آزاد شد!</h2>
+ <p style="text-align:center;line-height:2">
+ اولین قطعه قلب دانش را پیدا کردی.
+ ماجراجویی تو تازه آغاز شده است!
+ </p>
+ <h3 id="finalScore"></h3>
+ <button onclick="backHome()">بازگشت به شهر</button>
+</section>
+
+</main>
+
+<footer>
+ MATRYSA 2.0 | طراحی و توسعه: الینا کیان
+</footer>
+
+<script>
+
+let score = 0;
+let current = 0;
+let difficulty = 0;
+let answered = false;
+
+const questions = [
+ {
+  q:"حاصل ۵ + (−۳) کدام است؟",
+  a:["۲","۸","−۲","−۸"],
+  c:0
+ },
+ {
+  q:"حاصل (−۴) × ۳ کدام است؟",
+  a:["۱۲","−۱۲","۷","−۷"],
+  c:1
+ },
+ {
+  q:"کدام کسر بزرگ‌تر است؟",
+  a:["−۱/۲","−۳/۴","−۱","−۲"],
+  c:0
+ },
+ {
+  q:"حاصل ۲ + (−۵) × ۲ چیست؟",
+  a:["−۶","−۸","−۳","۱۴"],
+  c:1
+ },
+ {
+  q:"اگر x + ۴ = ۱۰ باشد، x چند است؟",
+  a:["۴","۵","۶","۱۴"],
+  c:2
+ }
+];
+
+function startGame(){
+ document.getElementById("home").classList.add("hidden");
+ document.getElementById("game").classList.remove("hidden");
+ showQuestion();
+}
+
+function showQuestion(){
+
+ answered=false;
+
+ let q=questions[current];
+
+ document.getElementById("level").textContent=
+ "مرحله "+(current+1);
+
+ document.getElementById("question").textContent=q.q;
+
+ document.getElementById("message").textContent="";
+
+ document.getElementById("next").classList.add("hidden");
+
+ document.getElementById("progress").style.width=
+ (current/questions.length*100)+"%";
+
+ let options=document.getElementById("options");
+ options.innerHTML="";
+
+ q.a.forEach((answer,index)=>{
+  let btn=document.createElement("button");
+  btn.className="option";
+  btn.textContent=answer;
+
+  btn.onclick=()=>checkAnswer(index);
+
+  options.appendChild(btn);
+ });
+
+}
+
+function checkAnswer(index){
+
+ if(answered)return;
+
+ answered=true;
+
+ let q=questions[current];
+
+ let buttons=document.querySelectorAll(".option");
+
+ buttons.forEach(btn=>btn.disabled=true);
+
+ if(index===q.c){
+
+  score+=20;
+  difficulty++;
+
+  document.getElementById("message").textContent=
+  "آفرین! پاسخ درست است. +۲۰ امتیاز";
+
+ }else{
+
+  document.getElementById("message").textContent=
+  "این پاسخ درست نبود. پاسخ صحیح: "+q.a[q.c];
+
+ }
+
+ document.getElementById("score").textContent=
+ "امتیاز: "+score;
+
+ document.getElementById("next").classList.remove("hidden");
+
+ document.getElementById("progress").style.width=
+ ((current+1)/questions.length*100)+"%";
+
+}
+
+function nextQuestion(){
+
+ current++;
+
+ if(current>=questions.length){
+
+  document.getElementById("game").classList.add("hidden");
+  document.getElementById("finish").classList.remove("hidden");
+
+  document.getElementById("finalScore").textContent=
+  "امتیاز نهایی: "+score;
+
+  localStorage.setItem("matrysa_score",score);
+
+  localStorage.setItem("matrysa_chapter1","completed");
+
+ }else{
+
+  showQuestion();
+
+ }
+
+}
+
+function backHome(){
+
+ document.getElementById("finish").classList.add("hidden");
+ document.getElementById("home").classList.remove("hidden");
+
+ current=0;
+ score=0;
+ difficulty=0;
+
+ document.getElementById("score").textContent="امتیاز: ۰";
+ document.getElementById("progress").style.width="0%";
+
+}
+
+</script>
+
+</body>
+</html>
